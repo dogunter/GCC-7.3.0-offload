@@ -1,0 +1,39 @@
+#%Module1.0
+##
+## NVIDIA cuda 9.1 modulefile
+##
+proc ModulesHelp { } {
+        puts stderr "\tThis loads the NVIDIA CUDA 9.1 environment."
+        puts sterr "\tModifies: PATH, LD_LIBRARY_PATH"
+
+}
+
+conflict cuda
+
+module-whatis   "load NVIDIA CUDA 9.1 environment"
+module-whatis   "Modifies: PATH, LD_LIBRARY_PATH"
+module-whatis   "IMPORTANT: the OpenCL libraries are installed by the NVIDIA driver, not this module"
+
+set version 9.1;
+set cuda_root "<INSTALLDIR>/cuda-9.1"
+set cuda_sdk "<INSTALLDIR>/samples"
+
+set os   [string tolower [uname sysname]]
+set mach [string tolower [uname machine]]
+set lib64dir    $cuda_root/lib64
+set libdir      $cuda_root/lib
+set incldir     $cuda_root/include
+set bindir      $cuda_root/bin
+
+setenv          CUDADIR            "$cuda_root"
+setenv          CUDA_INSTALL_PATH  "$cuda_root"
+setenv          CUDA_LIB           "$lib64dir:$libdir"
+setenv          CUDA_INCLUDE       "$incldir"
+setenv          CUDA_BIN           "$bindir"
+prepend-path    PATH               "$bindir"
+#prepend-path   PATH               "$cuda_sdk/C/bin/linux/release"
+prepend-path    LD_LIBRARY_PATH    "$lib64dir:$libdir"
+setenv          OPENCL_LIBS        "$lib64dir"
+setenv          OPENCL_INCLUDE     "$incldir"
+setenv          CUDA_SDK           "$cuda_sdk"
+

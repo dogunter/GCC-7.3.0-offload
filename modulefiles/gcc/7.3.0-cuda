@@ -1,0 +1,69 @@
+#%Module
+# vi:set filetype=tcl:
+
+# local variables
+set name         gcc
+set version      7.3.0
+
+set prefix       <INSTALLDIR>/gcc-7.3-cuda-9.1
+set bindir       $prefix/bin
+set infodir      $prefix/share/info
+set mandir       $prefix/share/man
+
+# module whatis
+module-whatis   "GNU project C, C++ and Fortran compiler 7.3.0 built for Cuda 9.1"
+
+# module help
+proc ModulesHelp { } {
+   global version prefix bindir
+
+   puts stderr "\tGNU project C, C++ and Fortran compiler $version\n"
+   puts stderr "\tMakefile variables:"
+   puts stderr "\t\tGCC\t= $prefix"
+   puts stderr "\t\tCC\t= gcc" puts stderr "\t\tCXX\t= g++"
+   puts stderr "\t\tCPP\t= cpp"
+   puts stderr "\t\tFC\t= gfortran"
+   puts stderr "\t\tF95\t= gfortran"
+   puts stderr "\t\tF90\t= gfortran"
+   puts stderr "\t\tF77\t= gfortran"
+}
+
+if { ![file exists $prefix] } {
+   module_break "\n[module-info name]: $prefix: No such file or directory.\n"
+}
+
+if { [module-info mode load] } {
+   catch {set ignorant $env(IGNOREMODULECONFLICTS)}
+   if { ![info exists ignorant] } {
+      catch {set cc $env(_MODULES_CC)}
+      if { [info exists cc] && ($cc != "[module-info name]") } {
+         module_break "ERROR: Module '[module-info name]' conflicts with a currently loaded module '$cc'"
+      }
+   }
+}
+
+setenv  GCC             $prefix
+setenv  _MODULES_CC     [module-info name]
+
+setenv  CC      gcc
+setenv  CXX     g++
+setenv  CPP     cpp
+setenv  FC      gfortran
+setenv  F95     gfortran
+setenv  F90     gfortran
+setenv  F77     gfortran
+
+prepend-path    PATH            $bindir
+prepend-path    LD_LIBRARY_PATH $prefix/lib64:$prefix/lib
+prepend-path    INFOPATH        $infodir
+
+# Setting MANPATH is trickier - not every system sets it, nor
+# do a lot of users.  So we set it if it doesn't exist
+catch {set cur_manpath $env(MANPATH)}
+if { ![info exists cur_manpath] || ($cur_manpath == "") } {
+    # put a ':' after mandir in MANPATH so that the system defaults can still
+    # be found. See the man page for 'manpath'
+    setenv          MANPATH     $mandir:
+} else {
+    prepend-path    MANPATH     $mandir
+}
